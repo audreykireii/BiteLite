@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiteLite - Pengingat & Keuangan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-cream: #F9F8F4; /* Soft Cream */
+            --text-navy: #1B2A47; /* Soft Navy */
+            --accent-gold: #D4AF37; /* Soft Gold */
+            --card-bg: #FFFFFF;
+            --border-light: #E0E0E0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-cream);
+            color: var(--text-navy);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: var(--text-navy);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 24px rgba(27, 42, 71, 0.05);
+            border: 1px solid var(--border-light);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--bg-cream);
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-direction: column;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.9rem;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--text-navy);
+        }
+
+        button {
+            background-color: var(--text-navy);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background 0.3s ease;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background-color: var(--accent-gold);
+        }
+
+        ul {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        li {
+            background: var(--bg-cream);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .task-text.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .delete-btn {
+            background: transparent;
+            color: #FF5A5F;
+            padding: 5px;
+            font-size: 1.2rem;
+        }
+        
+        .delete-btn:hover {
+            background: transparent;
+            color: #D32F2F;
+        }
+
+        .total-expense {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-light);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>BiteLite</h1>
+            <p>Kelola Waktu dan Uangmu dengan Cerdas</p>
+        </header>
+
+        <div class="dashboard">
+            <div class="card">
+                <h2>📅 Jadwal Harian</h2>
+                <div class="input-group">
+                    <div class="input-row">
+                        <input type="text" id="taskInput" placeholder="Contoh: Rapat evaluasi program...">
+                        <button onclick="addTask()">Tambah</button>
+                    </div>
+                </div>
+                <ul id="taskList">
+                    </ul>
+            </div>
+
+            <div class="card">
+                <h2>💰 Catatan Pengeluaran</h2>
+                <div class="input-group">
+                    <input type="text" id="expenseName" placeholder="Keterangan (Makan siang, bensin...)">
+                    <div class="input-row">
+                        <input type="number" id="expenseAmount" placeholder="Nominal (Rp)">
+                        <button onclick="addExpense()">Catat</button>
+                    </div>
+                </div>
+                <ul id="expenseList">
+                    </ul>
+                <div class="total-expense">
+                    Total: Rp <span id="totalDisplay">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Logika untuk Jadwal Harian
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const taskText = taskInput.value.trim();
+            
+            if (taskText !== '') {
+                const li = document.createElement('li');
+                
+                const span = document.createElement('span');
+                span.textContent = taskText;
+                span.className = 'task-text';
+                span.onclick = function() {
+                    this.classList.toggle('completed');
+                };
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerHTML = '×';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = function() {
+                    li.remove();
+                };
+
+                li.appendChild(span);
+                li.appendChild(deleteBtn);
+                document.getElementById('taskList').appendChild(li);
+                
+                taskInput.value = '';
+            }
+        }
+
+        // Logika untuk Pengeluaran
+        let totalExpense = 0;
+
+        function addExpense() {
+            const nameInput = document.getElementById('expenseName');
+            const amountInput = document.getElementById('expenseAmount');
+            const name = nameInput.value.trim();
+            const amount = parseInt(amountInput.value);
+
+            if (name !== '' && !isNaN(amount) && amount > 0) {
+                const li = document.createElement('li');
+                
+                // Format angka ke Rupiah
+                const formattedAmount = amount.toLocaleString('id-ID');
+                
+                li.innerHTML = `<span>${name}</span> <strong>Rp ${formattedAmount}</strong>`;
+                
+                document.getElementById('expenseList').appendChild(li);
+                
+                totalExpense += amount;
+                document.getElementById('totalDisplay').textContent = totalExpense.toLocaleString('id-ID');
+
+                nameInput.value = '';
+                amountInput.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
